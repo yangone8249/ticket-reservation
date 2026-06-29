@@ -16,7 +16,8 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ReservationResponse reserve(@PathVariable Long seatId, @RequestBody ReservationRequest request) {
+    public ReservationResponse reserve(@PathVariable("seatId") Long seatId, @RequestBody ReservationRequest request) {
+    	System.out.println("reserve() : 컨트롤러 진입 성공 ");
         Long reservationId = reservationService.reserve(seatId, request.reserverName());
         return new ReservationResponse(reservationId);
     }

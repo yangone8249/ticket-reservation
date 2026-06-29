@@ -24,14 +24,25 @@ public class SeatLockService {
 //	EX 5 : 점유성공한 녀석의 Lock이 5초동안 안풀리면 강제로 Lock 해제함 (무제한 Lock 상태를 막기위한 안전장치임) 
 	
 	public boolean tryLock(Long seatId) {
+		System.out.println("tryLock() : 점유 시도");
 		String key = lockKey(seatId);
+		System.out.println("seatId : "+seatId);
 		Boolean success = redisTemplate.opsForValue().setIfAbsent(key, "locked", Duration.ofSeconds(5));
+
+		System.out.println("success 여부 : "+success);
+		if(success) {
+    		System.out.println("락 점유 성공!");
+		}else {
+    		System.out.println("락 점유 실패!");
+		}
+		
 		
 		return Boolean.TRUE.equals(success);
 	}
 	
 	public void unlock(Long seatId) {
 		redisTemplate.delete(lockKey(seatId));
+		System.out.println("seatId : "+seatId+" 번 좌석 락 해제");
 	}
 	
 	private String lockKey(Long seatId) {
@@ -39,7 +50,9 @@ public class SeatLockService {
 	}
 	
 	public boolean tryLockWithRetry(Long seatId, int maxRetries, long retryIntervalMillis) {
+		System.out.println("tryLockWithRetry() : 분산락 진입");
 		for (int i=0; i<maxRetries; i++) {
+			System.out.println("tryLock "+i+1+"번 시도...");
 			if(tryLock(seatId)) {
 				return true;
 			}

@@ -20,6 +20,7 @@ public class ReservationService {
     @Transactional
     public Long reserve(Long seatId, String reserverName) {
     	
+    	
     	if(!seatLockService.tryLockWithRetry(seatId, 3, 50)) {
     		throw new IllegalStateException("다른 요청이 처리중입니다. 잠시 후 다시 시도해주세요. "
     				+ "seatId="+seatId);
@@ -42,11 +43,17 @@ public class ReservationService {
 	        
 	        
 	        seat.reserve();
-	
+    		System.out.println("좌석 예매 확정 상태로 변경");
+    		
 	        Reservation reservation = reservationRepository.save(new Reservation(seat, reserverName));
+
+ 
+    		
 	        return reservation.getId();
 
     	} finally {
+
+    		System.out.println("unlock() : 진입 성공");
 			seatLockService.unlock(seatId);
 		}
     }
